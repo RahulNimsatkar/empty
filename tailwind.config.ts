@@ -63,7 +63,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
+        sans: ["Plus Jakarta Sans", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
       },
