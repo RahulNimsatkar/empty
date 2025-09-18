@@ -1,5 +1,8 @@
-const express = require('express');
-const dotenv = require('dotenv');
+import express from 'express';
+import dotenv from 'dotenv';
+import { storage, DuplicateDocumentIdError } from '../server/storage';
+import { insertBrandProfileSchema, updateBrandProfileSchema, type BrandProfile } from '../shared/schema';
+import { normalizeUrl, toDocumentId } from '../shared/url';
 
 // Load environment variables
 dotenv.config();
@@ -8,54 +11,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Import storage with TypeScript transpilation handling
-let storage;
-try {
-  // Try to import the compiled version first
-  storage = require('../dist/storage').storage;
-} catch (error) {
-  // Fallback to TypeScript files (for development)
-  require('tsx/cjs');
-  storage = require('../server/storage').storage;
-}
-
-// Import shared utilities
-let normalizeUrl, toDocumentId;
-try {
-  const sharedUrl = require('../dist/shared/url');
-  normalizeUrl = sharedUrl.normalizeUrl;
-  toDocumentId = sharedUrl.toDocumentId;
-} catch (error) {
-  require('tsx/cjs');
-  const sharedUrl = require('../shared/url');
-  normalizeUrl = sharedUrl.normalizeUrl;
-  toDocumentId = sharedUrl.toDocumentId;
-}
-
-// Import schema
-let insertBrandProfileSchema, updateBrandProfileSchema;
-try {
-  const schema = require('../dist/shared/schema');
-  insertBrandProfileSchema = schema.insertBrandProfileSchema;
-  updateBrandProfileSchema = schema.updateBrandProfileSchema;
-} catch (error) {
-  require('tsx/cjs');
-  const schema = require('../shared/schema');
-  insertBrandProfileSchema = schema.insertBrandProfileSchema;
-  updateBrandProfileSchema = schema.updateBrandProfileSchema;
-}
-
-// Import DuplicateDocumentIdError
-let DuplicateDocumentIdError;
-try {
-  DuplicateDocumentIdError = require('../dist/storage').DuplicateDocumentIdError;
-} catch (error) {
-  require('tsx/cjs');
-  DuplicateDocumentIdError = require('../server/storage').DuplicateDocumentIdError;
-}
-
 // Helper function to convert response to Firebase-compatible format
-function toFirebaseFormat(profile) {
+function toFirebaseFormat(profile: BrandProfile) {
   return {
     id: profile.id,
     documentId: profile.documentId,
@@ -81,7 +38,7 @@ app.get("/api/brand-profiles", async (req, res) => {
 // GET /api/brand-profiles/by-url - Get brand profile by URL (using query param)
 app.get("/api/brand-profiles/by-url", async (req, res) => {
   try {
-    const url = req.query.url;
+    const url = req.query.url as string;
     if (!url) {
       return res.status(400).json({ error: "URL query parameter is required" });
     }
@@ -211,7 +168,7 @@ app.post("/api/brand-profiles", async (req, res) => {
         // Update existing profile (already canonical)
         console.log(`Updating existing canonical profile for URL: ${canonicalUrl} (documentId: ${canonicalDocumentId})`);
         profile = await storage.updateBrandProfile(existingProfile.documentId, profileData);
-        res.status(200).json(toFirebaseFormat(profile));
+        res.status(200).json(toFirebaseFormat(profile!));
       } else {
         // Existing profile has non-canonical document ID - this is a duplicate
         console.log(`Found duplicate with non-canonical ID. Existing: ${existingProfile.documentId}, Canonical: ${canonicalDocumentId}`);
@@ -223,7 +180,7 @@ app.post("/api/brand-profiles", async (req, res) => {
           ...profileData,
           documentId: existingProfile.documentId // Keep existing documentId to prevent key/field mismatch
         });
-        res.status(200).json(toFirebaseFormat(profile));
+        res.status(200).json(toFirebaseFormat(profile!));
       }
     } else {
       // Create new profile with canonical values
@@ -231,7 +188,7 @@ app.post("/api/brand-profiles", async (req, res) => {
       profile = await storage.createBrandProfile(profileData);
       res.status(201).json(toFirebaseFormat(profile));
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Brand profile save error:', error);
     if (error.name === 'ZodError') {
       console.log('Validation errors:', error.errors);
@@ -271,7 +228,7 @@ app.put("/api/brand-profiles/:documentId", async (req, res) => {
       return res.status(404).json({ error: "Brand profile not found" });
     }
     res.json(toFirebaseFormat(profile));
-  } catch (error) {
+  } catch (error: any) {
     if (error.name === 'ZodError') {
       return res.status(400).json({ error: "Invalid data", details: error.errors });
     }
@@ -297,4 +254,4 @@ app.delete("/api/brand-profiles/:documentId", async (req, res) => {
 });
 
 // Export the app for Vercel
-module.exports = app;
+export default app;

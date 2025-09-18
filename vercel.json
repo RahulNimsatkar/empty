@@ -2,16 +2,12 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/"
+      "destination": "/api/index.ts"
     }
   ],
   "functions": {
-    "api/index.js": {
-      "includeFiles": "shared/**"
+    "api/index.ts": {
+      "includeFiles": ["server/**", "shared/**"]
     }
   }
 }

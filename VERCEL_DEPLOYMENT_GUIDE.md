@@ -9,13 +9,13 @@ Your project has been configured for Vercel deployment with the following struct
 ```
 project/
 ├── api/                    # Serverless functions for Vercel
-│   ├── index.js           # Main API entry point
-│   └── package.json       # Backend dependencies
+│   └── index.ts           # Main API entry point (TypeScript)
 ├── client/                # Frontend source code
+├── server/                # Server-side code (included by serverless function)
 ├── shared/                # Shared types and utilities
 ├── dist/                  # Build output directory
 ├── vercel.json           # Vercel configuration
-└── package.json          # Main dependencies
+└── package.json          # Main dependencies and build scripts
 ```
 
 ## Deployment Steps
@@ -47,8 +47,9 @@ FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
 #### Hugging Face Configuration (Required)
 ```
 HF_TOKEN=hf_your_hugging_face_token
-VITE_HF_TOKEN=hf_your_hugging_face_token
 ```
+
+**Security Note:** Only set `HF_TOKEN` for server-side use. Do NOT set `VITE_HF_TOKEN` as this would expose your private token to client-side code.
 
 #### Database Configuration (Optional - if using database)
 ```
@@ -65,7 +66,7 @@ DATABASE_URL=your_postgresql_connection_string
 4. Configure the project settings:
    - **Framework Preset:** Vite
    - **Build Command:** `npm run build` (uses existing build script)
-   - **Output Directory:** `dist`
+   - **Output Directory:** `dist/public`
    - **Install Command:** `npm install`
 5. Add all environment variables listed above in the Vercel dashboard
 6. Click "Deploy"
@@ -93,23 +94,20 @@ The following files have been created/configured for Vercel deployment:
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/"
+      "destination": "/api/index.ts"
     }
   ],
   "functions": {
-    "api/index.js": {
-      "includeFiles": "shared/**"
+    "api/index.ts": {
+      "includeFiles": ["server/**", "shared/**"]
     }
   }
 }
 ```
 
-#### `api/package.json`
-Contains the necessary dependencies for the serverless API functions.
+**Note:** The catch-all rewrite for SPA routing is handled by Vercel's Vite preset automatically, so we only need to configure API routing.
+
+**Note:** All dependencies are managed in the root `package.json`. Vercel uses the root package.json for serverless functions, and the `api/index.ts` file imports from the `server/` and `shared/` directories.
 
 ### 4. How It Works
 
@@ -127,11 +125,12 @@ Contains the necessary dependencies for the serverless API functions.
 
 After deployment, verify:
 
-1. Frontend loads correctly
-2. API endpoints respond (test `/api/brand-profiles`)
+1. Frontend loads correctly at your Vercel URL
+2. API endpoints respond (test `https://your-app.vercel.app/api/brand-profiles`)
 3. Firebase integration works
-4. Hugging Face analysis functions work
+4. Hugging Face analysis functions work (server-side only)
 5. Database operations work (if applicable)
+6. Client-side routing works (test navigating and refreshing pages)
 
 ### 7. Troubleshooting
 
