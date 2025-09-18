@@ -10,7 +10,7 @@ interface DonutChartProps {
   className?: string;
 }
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))', '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c'];
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))', '#8884d8', '#82ca9d', '#ffc658', '#A31D1D'];
 
 export function DonutChart({ data, title, className = "" }: DonutChartProps) {
   const chartData = data.map((item, index) => ({
