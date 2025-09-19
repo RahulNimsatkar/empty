@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { MemoryStorage, DuplicateDocumentIdError, type IStorage } from '../server/memoryStorage';
+import { FirebaseStorage, DuplicateDocumentIdError, type IStorage } from '../server/firebaseStorage';
 import { insertBrandProfileSchema, updateBrandProfileSchema, type BrandProfile } from '../shared/schema';
 import { normalizeUrl, toDocumentId } from '../shared/url';
 
-// Initialize storage for Vercel environment
-const storage: IStorage = new MemoryStorage();
+// Initialize Firebase storage for Vercel environment
+const storage: IStorage = new FirebaseStorage();
 
 // Load environment variables
 dotenv.config();
