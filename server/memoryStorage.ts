@@ -31,7 +31,7 @@ export class MemoryStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    for (const user of this.users.values()) {
+    for (const user of Array.from(this.users.values())) {
       if (user.username === username) {
         return user;
       }
@@ -54,7 +54,7 @@ export class MemoryStorage implements IStorage {
   }
 
   async getBrandProfileByUrl(url: string): Promise<BrandProfile | undefined> {
-    for (const profile of this.brandProfiles.values()) {
+    for (const profile of Array.from(this.brandProfiles.values())) {
       if (profile.url === url) {
         return profile;
       }
