@@ -1,8 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { storage, DuplicateDocumentIdError } from '../server/storage';
+import { MemoryStorage, DuplicateDocumentIdError, type IStorage } from '../server/memoryStorage';
 import { insertBrandProfileSchema, updateBrandProfileSchema, type BrandProfile } from '../shared/schema';
 import { normalizeUrl, toDocumentId } from '../shared/url';
+
+// Initialize storage for Vercel environment
+const storage: IStorage = new MemoryStorage();
 
 // Load environment variables
 dotenv.config();
