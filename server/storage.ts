@@ -1,5 +1,5 @@
 // Import Firebase storage implementation
-import { FirebaseStorage, DuplicateDocumentIdError, type IStorage } from "./firebaseStorage";
+import { FirebaseStorage, DuplicateDocumentIdError, type IStorage } from "./firebaseStorage.js";
 
 // Export the interfaces and errors for use by routes
 export { DuplicateDocumentIdError, type IStorage };

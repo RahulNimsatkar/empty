@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage, DuplicateDocumentIdError } from "./storage";
+import { storage, DuplicateDocumentIdError } from "./storage.js";
 import { insertBrandProfileSchema, updateBrandProfileSchema, type BrandProfile } from "@shared/schema";
 import { normalizeUrl, toDocumentId } from "@shared/url";
 
